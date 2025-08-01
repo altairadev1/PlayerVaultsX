@@ -22,10 +22,9 @@ import com.drtshock.playervaults.PlayerVaults;
 import com.drtshock.playervaults.config.file.Translation;
 import com.drtshock.playervaults.events.BlacklistedItemEvent;
 import com.drtshock.playervaults.util.Permission;
-import com.drtshock.playervaults.vaultmanagement.VaultHolder;
-import com.drtshock.playervaults.vaultmanagement.VaultManager;
-import com.drtshock.playervaults.vaultmanagement.VaultViewInfo;
+import com.drtshock.playervaults.vaultmanagement.*;
 import org.bukkit.Bukkit;
+import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.HumanEntity;
@@ -137,6 +136,17 @@ public class Listeners implements Listener {
 
         Inventory clickedInventory = event.getClickedInventory();
         if (clickedInventory != null) {
+            if (clickedInventory.getHolder() instanceof VaultMenuHolder) {
+                // This is a vault menu, not a vault
+                if (event.getCurrentItem() != null && event.getCurrentItem().getType() != null && event.getCurrentItem().getType() != org.bukkit.Material.AIR) {
+                    event.setCancelled(true);
+                    Material type = event.getCurrentItem().getType();
+                    if (type.equals(Material.ENDER_CHEST)) {
+                        VaultOperations.openOwnVault(player, String.valueOf(event.getSlot() + 1));
+                    }
+                }
+                return;
+            }
             VaultViewInfo info = PlayerVaults.getInstance().getInVault().get(player.getUniqueId().toString());
             if (info != null) {
                 int num = info.getNumber();

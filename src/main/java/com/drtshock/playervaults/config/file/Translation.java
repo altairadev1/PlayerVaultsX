@@ -159,6 +159,7 @@ public class Translation {
         this.cleanupMiniMessup(this.translations.setSign);
         this.cleanupMiniMessup(this.translations.existingVaults);
         this.cleanupMiniMessup(this.translations.vaultTitle);
+        this.cleanupMiniMessup(this.translations.vaultMenuTitle);
         this.cleanupMiniMessup(this.translations.openWithSign);
         this.cleanupMiniMessup(this.translations.noOwnerFound);
         this.cleanupMiniMessup(this.translations.convertPluginNotFound);
@@ -219,6 +220,7 @@ public class Translation {
         private TL setSign = TL.of("<normal>You have successfully set a PlayerVault access sign!");
         private TL existingVaults = TL.of("<normal><player> has vaults: <info><vault></info>");
         private TL vaultTitle = TL.of("<dark_red>Vault #<vault>");
+        private TL vaultMenuTitle = TL.of("<dark_red>Vaults");
         private TL openWithSign = TL.of("<normal>Opening vault <info><vault></info> of <info><player></info>");
         private TL noOwnerFound = TL.of("<error>Cannot find vault owner: <info><player></info>");
         private TL convertPluginNotFound = TL.of("<error>No converter found for that plugin.");
@@ -327,6 +329,10 @@ public class Translation {
 
     public @NonNull TL vaultTitle() {
         return this.translations.vaultTitle;
+    }
+
+    public @NonNull TL vaultMenuTitle() {
+        return this.translations.vaultMenuTitle;
     }
 
     public @NonNull TL openWithSign() {

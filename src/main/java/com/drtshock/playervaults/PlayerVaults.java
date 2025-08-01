@@ -661,6 +661,16 @@ public class PlayerVaults extends JavaPlugin {
         return this.translation.vaultTitle().with("vault", id).getLegacy();
     }
 
+    public ItemStack getVaultItem(int id) {
+        ItemStack item = new ItemStack(Material.ENDER_CHEST);
+        ItemMeta meta = item.getItemMeta();
+        if (meta != null) {
+            meta.setDisplayName(this.translation.vaultTitle().with("vault", String.valueOf(id)).getLegacy());
+            item.setItemMeta(meta);
+        }
+        return item;
+    }
+
     public String getExceptions() {
         if (this.exceptions.isEmpty()) {
             return null;

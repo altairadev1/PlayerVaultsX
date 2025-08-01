@@ -79,8 +79,8 @@ public class VaultOperations {
      */
     public static boolean checkPerms(CommandSender sender, int number) {
         for (int x = number; x <= PlayerVaults.getInstance().getMaxVaultAmountPermTest(); x++) {
-            if (sender.hasPermission(Permission.amount(x))) {
-                return true;
+            if (sender instanceof Player player) {
+                return countVaults(player) >= x;
             }
         }
         return false;
@@ -272,6 +272,29 @@ public class VaultOperations {
         return false;
     }
 
+    public static void openVaultMenu(Player player) {
+        if (isLocked()) {
+            return;
+        }
+        if (player.isSleeping() || player.isDead() || !player.isOnline()) {
+            return;
+        }
+
+        Inventory inv = VaultManager.getInstance().loadVaultMenu(player);
+        if (inv == null) {
+            PlayerVaults.getInstance().getTL().vaultDoesNotExist().title().send(player);
+            return;
+        }
+
+        player.openInventory(inv);
+
+        // Check if the inventory was actually opened
+        if (player.getOpenInventory().getTopInventory() instanceof CraftingInventory || player.getOpenInventory().getTopInventory() == null) {
+            PlayerVaults.debug(String.format("Cancelled opening vault menu for %s from an outside source.", player.getName()));
+            return; // inventory open event was cancelled.
+        }
+    }
+
     /**
      * Delete a player's own vault.
      *
@@ -375,10 +398,13 @@ public class VaultOperations {
 
     public static int countVaults(Player player) {
         UUID uuid = player.getUniqueId();
+        /*
         PlayerCount count = countCache.get(uuid);
         if (count != null && count.time().isAfter(Instant.now().plus(secondsToLive, ChronoUnit.SECONDS))) {
             return count.count;
         }
+
+
         int vaultCount = 0;
         for (int x = 1; x <= PlayerVaults.getInstance().getMaxVaultAmountPermTest(); x++) {
             if (player.hasPermission(Permission.amount(x))) {
@@ -392,6 +418,34 @@ public class VaultOperations {
                 countCache.remove(uuid); // Do a lil cleanup to avoid the world's smallest memory leak
             }
         }, 20 * secondsToLive + 1);
-        return vaultCount;
+
+         */
+        int baseAllowed = 0;
+        int extraAllowed = 0;
+        for (var attachment : player.getEffectivePermissions()) {
+            if (attachment.getPermission().startsWith(Permission.AMOUNT_PREFIX)) {
+                String perm = attachment.getPermission().substring(Permission.AMOUNT_PREFIX.length());
+                try {
+                    int permNum = Integer.parseInt(perm);
+                    if (permNum > baseAllowed) {
+                        baseAllowed = permNum;
+                    }
+                } catch (NumberFormatException e) {
+                    // Not a valid number, skip this permission
+                }
+            }
+            if (attachment.getPermission().startsWith(Permission.EXTRA_AMOUNT_PREFIX)) {
+                String perm = attachment.getPermission().substring(Permission.EXTRA_AMOUNT_PREFIX.length());
+                try {
+                    int permNum = Integer.parseInt(perm);
+                    if (permNum > extraAllowed) {
+                        extraAllowed = permNum;
+                    }
+                } catch (NumberFormatException e) {
+                    // Not a valid number, skip this permission
+                }
+            }
+        }
+        return baseAllowed + extraAllowed;
     }
 }

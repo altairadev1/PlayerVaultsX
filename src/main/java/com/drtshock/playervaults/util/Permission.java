@@ -15,7 +15,8 @@ public class Permission {
     public static final String SIGNS_USE = PREFIX + "signs.use";
     public static final String SIGNS_SET = PREFIX + "signs.set";
 
-    private static final String AMOUNT_PREFIX = PREFIX + "amount.";
+    public static final String AMOUNT_PREFIX = PREFIX + "amount.";
+    public static final String EXTRA_AMOUNT_PREFIX = PREFIX + "extraamount.";
     private static final String SIZE_PREFIX = PREFIX + "size.";
 
     public static String amount(int amount) {

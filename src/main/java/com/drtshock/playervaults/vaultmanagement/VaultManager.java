@@ -20,10 +20,12 @@ package com.drtshock.playervaults.vaultmanagement;
 
 import com.drtshock.playervaults.PlayerVaults;
 import org.bukkit.Bukkit;
+import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
+import org.bukkit.event.Listener;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
@@ -148,6 +150,34 @@ public class VaultManager {
             PlayerVaults.getInstance().getOpenInventories().put(info.toString(), inv);
         }
         return inv;
+    }
+
+    public Inventory loadVaultMenu(Player player) {
+        // Load a menu for the player containing ender chests for each vault the player has.
+        // Rows expand for every 9 vaults, so 9 vaults = 1 row, 18 vaults = 2 rows, etc.
+        int vaults = VaultOperations.countVaults(player);
+        int size = Math.min((int) Math.ceil(vaults / 9.0) * 9, 54); // Round up to the nearest
+        // multiple
+        // of 9
+        PlayerVaults.debug("Loading vault menu for " + player.getName() + " with " + vaults + " vaults");
+        String title = PlayerVaults.getInstance().getTL().vaultMenuTitle().getLegacy();
+        Inventory inventory = Bukkit.createInventory(new VaultMenuHolder(), size, title);
+        ItemStack blank = new ItemStack(Material.BLACK_STAINED_GLASS_PANE);
+        var blankMeta = blank.getItemMeta();
+        if (blankMeta != null) {
+            blankMeta.setHideTooltip(true);
+            blank.setItemMeta(blankMeta);
+        }
+        for (int i = 1; i <= size; i++) {
+            if (i > vaults) {
+                // Fill the rest of the inventory with air
+                inventory.setItem(i - 1, blank);
+                continue;
+            }
+            ItemStack item = PlayerVaults.getInstance().getVaultItem(i);
+            inventory.setItem(i - 1, item);
+        }
+        return inventory;
     }
 
     /**
